@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: shahin
+      changes:
+        - createTable:
+            tableName: events
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: location
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_time
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_time
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValue: now()
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValue: now()

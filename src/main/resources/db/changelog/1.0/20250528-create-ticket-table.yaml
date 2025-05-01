@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: shahin
+      changes:
+        - createTable:
+            tableName: tickets
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: price
+                  type: DOUBLE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: row
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: place
+                  type: INTEGER
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValue: now()
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValue: now()
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_tickets_event
+                    references: events(id)
