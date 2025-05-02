@@ -34,6 +34,11 @@ dependencies {
 
     //swagger
     implementation "org.springdoc:springdoc-openapi-ui:$openApiVersion"
+
+    //test
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.13.0-M2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.17.0'
 }
 
 tasks.named('test') {

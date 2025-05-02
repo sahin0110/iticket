@@ -1,19 +1,29 @@
 package az.vtb.iticket.controller;
 
+import az.vtb.iticket.model.criteria.PageCriteria;
 import az.vtb.iticket.model.criteria.TicketCriteria;
 import az.vtb.iticket.model.request.CreateTicketRequest;
+import az.vtb.iticket.model.request.UpdateTicketRequest;
+import az.vtb.iticket.model.response.PageableResponse;
 import az.vtb.iticket.model.response.TicketResponse;
 import az.vtb.iticket.service.abstraction.TicketService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @RestController
-@RequestMapping("/v1/ticket")
+@RequestMapping("/v1/tickets")
 @RequiredArgsConstructor
 public class TicketController {
 
@@ -21,13 +31,13 @@ public class TicketController {
 
     @PostMapping
     @ResponseStatus(CREATED)
-    public void createTicket(@Valid @RequestBody CreateTicketRequest ticketRequest) {
+    public void createTicket(@RequestBody @Valid CreateTicketRequest ticketRequest) {
         ticketService.saveTicket(ticketRequest);
     }
 
     @GetMapping
-    public Page<TicketResponse> allTickets(TicketCriteria ticketCriteria, Pageable pageable) {
-        return ticketService.getAllTicket(ticketCriteria, pageable);
+    public PageableResponse<TicketResponse> getAllTickets(PageCriteria pageCriteria, TicketCriteria ticketCriteria) {
+        return ticketService.getAllTickets(pageCriteria, ticketCriteria);
     }
 
     @GetMapping("/{ticketId}")
@@ -37,11 +47,12 @@ public class TicketController {
 
     @PutMapping("/{ticketId}")
     public TicketResponse updateTicket(@PathVariable Long ticketId,
-                                       @Valid @RequestBody CreateTicketRequest ticketRequest) {
+                                       @RequestBody @Valid UpdateTicketRequest ticketRequest) {
         return ticketService.updateTicket(ticketId, ticketRequest);
     }
 
     @DeleteMapping("/{ticketId}")
+    @ResponseStatus(NO_CONTENT)
     public void deleteTicket(@PathVariable Long ticketId) {
         ticketService.deleteTicket(ticketId);
     }

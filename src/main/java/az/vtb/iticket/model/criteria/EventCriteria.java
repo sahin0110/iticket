@@ -3,10 +3,11 @@ package az.vtb.iticket.model.criteria;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+
+import static az.vtb.iticket.model.constant.DateTimeConstants.DATE_TIME;
 
 @Data
 @Builder
@@ -14,6 +15,6 @@ import java.time.LocalDate;
 public class EventCriteria {
     private String category;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = DATE_TIME)
     private LocalDate fromDate;
 }

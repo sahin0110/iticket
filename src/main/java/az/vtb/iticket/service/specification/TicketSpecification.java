@@ -11,9 +11,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.math.BigDecimal;
-
-import static az.vtb.iticket.dao.entity.TicketEntity.Fields.*;
+import static az.vtb.iticket.dao.entity.TicketEntity.Fields.place;
+import static az.vtb.iticket.dao.entity.TicketEntity.Fields.row;
+import static az.vtb.iticket.dao.entity.TicketEntity.Fields.price;
 
 @RequiredArgsConstructor
 public class TicketSpecification implements Specification<TicketEntity> {

@@ -1,14 +1,19 @@
 package az.vtb.iticket.model.response;
 
+import az.vtb.iticket.model.enums.Category;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import static az.vtb.iticket.model.constant.DateTimeConstants.DATE_TIME_PATTERN;
+
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class EventResponse {
 
@@ -16,10 +21,10 @@ public class EventResponse {
     private String name;
     private String description;
     private String location;
-    private String category;
+    private Category category;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime endTime;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime startTime;
 }

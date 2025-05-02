@@ -4,6 +4,7 @@ import az.vtb.iticket.dao.entity.EventEntity;
 import az.vtb.iticket.dao.entity.TicketEntity;
 import az.vtb.iticket.model.criteria.TicketCriteria;
 import az.vtb.iticket.model.request.CreateTicketRequest;
+import az.vtb.iticket.model.request.UpdateTicketRequest;
 import az.vtb.iticket.model.response.TicketResponse;
 import az.vtb.iticket.service.specification.TicketSpecification;
 
@@ -32,19 +33,10 @@ public enum TicketMapper {
                 .build();
     }
 
-    public void updateTicket(TicketEntity ticketEntity, CreateTicketRequest ticketRequest) {
-
-        if (ticketRequest.getPrice() != null) {
-            ticketEntity.setPrice(ticketRequest.getPrice());
-        }
-
-        if (ticketRequest.getRow() != null) {
-            ticketEntity.setRow(ticketRequest.getRow());
-        }
-
-        if (ticketRequest.getPlace() != null) {
-            ticketEntity.setPlace(ticketRequest.getPlace());
-        }
+    public void updateTicket(TicketEntity ticketEntity, UpdateTicketRequest ticketRequest) {
+        ticketEntity.setPrice(ticketRequest.getPrice());
+        ticketEntity.setRow(ticketRequest.getRow());
+        ticketEntity.setPlace(ticketRequest.getPlace());
     }
 
     public TicketSpecification toTicketSpecification(TicketCriteria ticketCriteria) {
@@ -53,6 +45,6 @@ public enum TicketMapper {
 
     public void setEventInTicketEntity(TicketEntity ticketEntity, EventEntity eventEntity) {
         ticketEntity.setEvent(eventEntity);
-        eventEntity.setTicketEntities(List.of(ticketEntity));
+        eventEntity.setTickets(List.of(ticketEntity));
     }
 }

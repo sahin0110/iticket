@@ -2,23 +2,27 @@ package az.vtb.iticket.service.concrete;
 
 import az.vtb.iticket.dao.entity.TicketEntity;
 import az.vtb.iticket.dao.repository.TicketRepository;
-import az.vtb.iticket.exception.AlreadyExistsException;
 import az.vtb.iticket.exception.UnprocessableException;
 import az.vtb.iticket.exception.NotFoundException;
+import az.vtb.iticket.model.criteria.PageCriteria;
 import az.vtb.iticket.model.criteria.TicketCriteria;
 import az.vtb.iticket.model.request.CreateTicketRequest;
+import az.vtb.iticket.model.request.UpdateTicketRequest;
+import az.vtb.iticket.model.response.PageableResponse;
 import az.vtb.iticket.model.response.TicketResponse;
 import az.vtb.iticket.service.abstraction.EventService;
 import az.vtb.iticket.service.abstraction.TicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ConcurrentModificationException;
 
-import static az.vtb.iticket.exception.ErrorMessage.*;
+import static az.vtb.iticket.exception.ErrorMessage.CANNOT_CREATE_TICKET;
+import static az.vtb.iticket.exception.ErrorMessage.TICKET_NOT_FOUND;
+import static az.vtb.iticket.exception.ErrorMessage.DUPLICATE_TICKET_PLACE;
+import static az.vtb.iticket.mapper.PageableMapper.PAGEABLE_MAPPER;
 import static az.vtb.iticket.mapper.TicketMapper.TICKET_MAPPER;
 
 
@@ -47,9 +51,11 @@ public class TicketServiceHandler implements TicketService {
     }
 
     @Override
-    public Page<TicketResponse> getAllTicket(TicketCriteria ticketCriteria, Pageable pageable) {
-        return ticketRepository.findAll(TICKET_MAPPER.toTicketSpecification(ticketCriteria), pageable)
-                .map(TICKET_MAPPER::toTicketResponse);
+    public PageableResponse<TicketResponse> getAllTickets(PageCriteria pageCriteria, TicketCriteria ticketCriteria) {
+        var tickets = ticketRepository.findAll(
+                        TICKET_MAPPER.toTicketSpecification(ticketCriteria),
+                        PAGEABLE_MAPPER.toPageRequest(pageCriteria));
+        return PAGEABLE_MAPPER.buildPageableResponse(tickets, TICKET_MAPPER::toTicketResponse);
     }
 
     @Override
@@ -59,8 +65,11 @@ public class TicketServiceHandler implements TicketService {
     }
 
     @Override
-    public TicketResponse updateTicket(Long ticketId, CreateTicketRequest ticketRequest) {
+    public TicketResponse updateTicket(Long ticketId, UpdateTicketRequest ticketRequest) {
         var ticket = fetchTicketIfExist(ticketId);
+
+        validateTicketPlace(ticketRequest.getEventId(), ticketRequest.getRow(), ticketRequest.getPlace());
+
         TICKET_MAPPER.updateTicket(ticket, ticketRequest);
         var ticketEntity = ticketRepository.save(ticket);
         return TICKET_MAPPER.toTicketResponse(ticketEntity);
@@ -80,7 +89,7 @@ public class TicketServiceHandler implements TicketService {
     private void validateTicketPlace(Long eventId, Integer row, Integer place) {
         var exists = ticketRepository.existsByEventIdAndRowAndPlace(eventId, row, place);
         if (exists) {
-            throw new AlreadyExistsException(DUPLICATE_TICKET_PLACE.getCode());
+            throw new ConcurrentModificationException(DUPLICATE_TICKET_PLACE.getCode());
         }
     }
 }

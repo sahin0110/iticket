@@ -1,6 +1,6 @@
 databaseChangeLog:
   - changeSet:
-      id: 1
+      id: 202505281023
       author: shahin
       changes:
         - createTable:
@@ -15,7 +15,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: name
-                  type: VARCHAR
+                  type: VARCHAR(128)
                   constraints:
                     nullable: false
               - column:
@@ -46,8 +46,6 @@ databaseChangeLog:
               - column:
                   name: created_at
                   type: TIMESTAMP
-                  defaultValue: now()
               - column:
                   name: updated_at
                   type: TIMESTAMP
-                  defaultValue: now()

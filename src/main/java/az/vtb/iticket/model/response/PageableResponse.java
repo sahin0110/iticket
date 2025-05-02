@@ -5,17 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TicketResponse {
-
-    private Long id;
-    private BigDecimal price;
-    private Integer row;
-    private Integer place;
-    private EventResponse event;
+public class PageableResponse<T> {
+    private List<T> content;
+    private int totalPages;
+    private boolean hasNextPage;
+    private long totalElements;
 }
