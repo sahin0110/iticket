@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static az.vtb.iticket.dao.entity.EventEntity.Fields.category;
+import static az.vtb.iticket.dao.entity.EventEntity.Fields.isDeleted;
 import static az.vtb.iticket.util.PredicateUtil.applyLikePattern;
 
 @RequiredArgsConstructor
@@ -27,6 +28,10 @@ public class EventSpecification implements Specification<EventEntity> {
                                  CriteriaQuery<?> query,
                                  @NonNull CriteriaBuilder cb) {
         var predicates = PredicateUtil.builder()
+                .add(
+                        eventCriteria.getIsDeleted(),
+                        it -> cb.isFalse(root.get(isDeleted))
+                )
                 .addNullSafety(
                         eventCriteria.getCategory(),
                         it -> cb.like(cb.lower(root.get(category)), applyLikePattern(it.toLowerCase()))

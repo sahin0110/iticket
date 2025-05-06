@@ -47,6 +47,9 @@ public class EventEntity {
     @OneToMany(mappedBy = "event", cascade = {PERSIST, MERGE})
     private List<TicketEntity> tickets;
 
+    private boolean isDeleted;
+    private LocalDateTime deletedAt;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

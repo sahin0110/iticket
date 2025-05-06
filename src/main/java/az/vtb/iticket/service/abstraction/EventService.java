@@ -14,7 +14,7 @@ public interface EventService {
 
     PageableResponse<EventResponse> getAllEvents(PageCriteria pageCriteria, EventCriteria eventCriteria);
 
-    EventEntity fetchEventIfExist(@Valid Long eventId);
+    EventEntity getActiveEventOrThrow(@Valid Long eventId);
 
     void deleteEvent(Long eventId);
 

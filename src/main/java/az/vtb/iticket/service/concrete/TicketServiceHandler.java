@@ -37,56 +37,64 @@ public class TicketServiceHandler implements TicketService {
 
     @Override
     public void saveTicket(CreateTicketRequest ticketRequest) {
-        var event = eventService.fetchEventIfExist(ticketRequest.getEventId());
+        var event = eventService.getActiveEventOrThrow(ticketRequest.getEventId());
 
-        if (event.getStartTime().isBefore(LocalDateTime.now())) {
-            throw new UnprocessableException(CANNOT_CREATE_TICKET.getCode());
-        }
-
-        validateTicketPlace(ticketRequest.getEventId(), ticketRequest.getRow(), ticketRequest.getPlace());
+        checkEventNotStarted(event.getStartTime());
+        checkDuplicatePlace(ticketRequest.getEventId(), ticketRequest.getRow(), ticketRequest.getPlace());
 
         var ticketEntity = TICKET_MAPPER.toTicketEntity(ticketRequest);
-        TICKET_MAPPER.setEventInTicketEntity(ticketEntity, event);
+        ticketEntity.setEvent(event);
         ticketRepository.save(ticketEntity);
     }
 
     @Override
     public PageableResponse<TicketResponse> getAllTickets(PageCriteria pageCriteria, TicketCriteria ticketCriteria) {
         var tickets = ticketRepository.findAll(
-                        TICKET_MAPPER.toTicketSpecification(ticketCriteria),
-                        PAGEABLE_MAPPER.toPageRequest(pageCriteria));
+                TICKET_MAPPER.toTicketSpecification(ticketCriteria),
+                PAGEABLE_MAPPER.toPageRequest(pageCriteria));
         return PAGEABLE_MAPPER.buildPageableResponse(tickets, TICKET_MAPPER::toTicketResponse);
     }
 
     @Override
     public TicketResponse getTicket(Long ticketId) {
-        var ticket = fetchTicketIfExist(ticketId);
+        var ticket = getActiveTicketOrThrow(ticketId);
         return TICKET_MAPPER.toTicketResponse(ticket);
     }
 
     @Override
     public TicketResponse updateTicket(Long ticketId, UpdateTicketRequest ticketRequest) {
-        var ticket = fetchTicketIfExist(ticketId);
+        var ticket = getActiveTicketOrThrow(ticketId);
 
-        validateTicketPlace(ticketRequest.getEventId(), ticketRequest.getRow(), ticketRequest.getPlace());
+        checkDuplicatePlace(ticketRequest.getEventId(), ticketRequest.getRow(), ticketRequest.getPlace());
 
         TICKET_MAPPER.updateTicket(ticket, ticketRequest);
-        var ticketEntity = ticketRepository.save(ticket);
-        return TICKET_MAPPER.toTicketResponse(ticketEntity);
+        var updatedTicket = ticketRepository.save(ticket);
+
+        return TICKET_MAPPER.toTicketResponse(updatedTicket);
     }
 
     @Override
     public void deleteTicket(Long ticketId) {
-        ticketRepository.deleteById(ticketId);
+        var ticket = getActiveTicketOrThrow(ticketId);
+        ticket.setDeleted(true);
+        ticket.setDeletedAt(LocalDateTime.now());
+        ticketRepository.save(ticket);
     }
 
     @Override
-    public TicketEntity fetchTicketIfExist(Long ticketId) {
+    public TicketEntity getActiveTicketOrThrow(Long ticketId) {
         return ticketRepository.findById(ticketId)
+                .filter(ticket -> !ticket.isDeleted())
                 .orElseThrow(() -> new NotFoundException(TICKET_NOT_FOUND.getCode()));
     }
 
-    private void validateTicketPlace(Long eventId, Integer row, Integer place) {
+    private void checkEventNotStarted(LocalDateTime startTime) {
+        if (startTime.isBefore(LocalDateTime.now())) {
+            throw new UnprocessableException(CANNOT_CREATE_TICKET.getCode());
+        }
+    }
+
+    private void checkDuplicatePlace(Long eventId, Integer row, Integer place) {
         var exists = ticketRepository.existsByEventIdAndRowAndPlace(eventId, row, place);
         if (exists) {
             throw new ConcurrentModificationException(DUPLICATE_TICKET_PLACE.getCode());

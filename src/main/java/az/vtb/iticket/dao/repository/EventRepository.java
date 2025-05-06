@@ -15,4 +15,6 @@ public interface EventRepository extends CrudRepository<EventEntity, Long> {
     Page<EventEntity> findAll(Specification<EventEntity> specification, @NonNull Pageable pageable);
 
     List<EventEntity> findEventEntityByEndTimeIsBefore(LocalDateTime endTimeBefore);
+
+    List<EventEntity> findEventEntityByDeletedAtBefore(LocalDateTime dateTime);
 }

@@ -10,7 +10,8 @@ public enum ErrorMessage {
     EVENT_NOT_FOUND("error.event.notFound"),
     TICKET_NOT_FOUND("error.ticket.notFound"),
     DUPLICATE_TICKET_PLACE("error.ticket.duplicatePlace"),
-    CANNOT_CREATE_TICKET("error.cannotCreateTicket")
+    CANNOT_CREATE_TICKET("error.cannotCreateTicket"),
+    INVALID_EVENT_TIME("error.invalidEventTime")
     ;
 
     private final String code;

@@ -43,8 +43,8 @@ public enum TicketMapper {
         return new TicketSpecification(ticketCriteria);
     }
 
-    public void setEventInTicketEntity(TicketEntity ticketEntity, EventEntity eventEntity) {
-        ticketEntity.setEvent(eventEntity);
-        eventEntity.setTickets(List.of(ticketEntity));
-    }
+//    public void setEventInTicketEntity(TicketEntity ticketEntity, EventEntity eventEntity) {
+//        ticketEntity.setEvent(eventEntity);
+//        eventEntity.setTickets(List.of(ticketEntity));
+//    }
 }

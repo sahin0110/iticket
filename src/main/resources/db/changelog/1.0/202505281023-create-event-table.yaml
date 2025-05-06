@@ -34,6 +34,13 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: is_deleted
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP
+              - column:
                   name: start_time
                   type: TIMESTAMP
                   constraints:

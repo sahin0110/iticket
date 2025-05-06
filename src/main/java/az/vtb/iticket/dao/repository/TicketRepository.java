@@ -28,5 +28,5 @@ public interface TicketRepository extends CrudRepository<TicketEntity, Long>, Jp
     @Query("delete from TicketEntity t where t.event.id in :eventIds")
     void deleteByEventIds(@Param("eventIds") List<Long> eventIds);
 
-    void deleteByEventId(Long eventId);
+    List<TicketEntity> findAllByEventId(Long eventId);
 }

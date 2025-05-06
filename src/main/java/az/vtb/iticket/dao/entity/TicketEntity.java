@@ -38,6 +38,9 @@ public class TicketEntity {
     @ManyToOne(fetch = LAZY)
     private EventEntity event;
 
+    private boolean isDeleted;
+    private LocalDateTime deletedAt;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

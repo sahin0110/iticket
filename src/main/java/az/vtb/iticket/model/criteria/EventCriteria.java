@@ -17,4 +17,5 @@ public class EventCriteria {
 
     @DateTimeFormat(pattern = DATE_TIME)
     private LocalDate fromDate;
+    private Boolean isDeleted;
 }

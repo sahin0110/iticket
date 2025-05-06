@@ -11,9 +11,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-import static az.vtb.iticket.dao.entity.TicketEntity.Fields.place;
-import static az.vtb.iticket.dao.entity.TicketEntity.Fields.row;
-import static az.vtb.iticket.dao.entity.TicketEntity.Fields.price;
+import static az.vtb.iticket.dao.entity.TicketEntity.Fields.*;
 
 @RequiredArgsConstructor
 public class TicketSpecification implements Specification<TicketEntity> {
@@ -25,6 +23,8 @@ public class TicketSpecification implements Specification<TicketEntity> {
                                  CriteriaQuery<?> query,
                                  @NonNull CriteriaBuilder cb) {
         var predicates = PredicateUtil.builder()
+                .add(ticketCriteria.getIsDeleted(),
+                        it -> cb.isFalse(root.get(isDeleted)))
                 .addNullSafety(ticketCriteria.getRow(),
                         it -> cb.equal(root.get(row), it)
                 )
@@ -40,7 +40,6 @@ public class TicketSpecification implements Specification<TicketEntity> {
                 .addNullSafety(ticketCriteria.getMaxPrice(),
                         it -> cb.lessThanOrEqualTo(root.get(price), it)
                 )
-
                 .build();
         return cb.and(predicates);
     }

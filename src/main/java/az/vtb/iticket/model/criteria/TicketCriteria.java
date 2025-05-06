@@ -15,4 +15,5 @@ public class TicketCriteria {
     private Integer row;
     private Integer place;
     private Long eventId;
+    private Boolean isDeleted;
 }

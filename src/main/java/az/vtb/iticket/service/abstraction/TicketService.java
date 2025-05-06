@@ -16,7 +16,7 @@ public interface TicketService {
 
     TicketResponse getTicket(Long ticketId);
 
-    TicketEntity fetchTicketIfExist(Long ticketId);
+    TicketEntity getActiveTicketOrThrow(Long ticketId);
 
     void deleteTicket(Long ticketId);
 
