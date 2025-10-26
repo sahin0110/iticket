@@ -6,9 +6,11 @@ import az.vtb.iticket.exception.NotFoundException;
 import az.vtb.iticket.exception.UnprocessableException;
 import az.vtb.iticket.model.criteria.EventCriteria;
 import az.vtb.iticket.model.criteria.PageCriteria;
+import az.vtb.iticket.model.queue.Subscriber;
 import az.vtb.iticket.model.request.CreateEventRequest;
 import az.vtb.iticket.model.response.EventResponse;
 import az.vtb.iticket.model.response.PageableResponse;
+import az.vtb.iticket.queue.abstraction.MessagePublisher;
 import az.vtb.iticket.service.abstraction.EventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,8 @@ import static az.vtb.iticket.exception.ErrorMessage.EVENT_NOT_FOUND;
 import static az.vtb.iticket.exception.ErrorMessage.INVALID_EVENT_TIME;
 import static az.vtb.iticket.mapper.EventMapper.EVENT_MAPPER;
 import static az.vtb.iticket.mapper.PageableMapper.PAGEABLE_MAPPER;
+import static az.vtb.iticket.model.constant.QueueConstant.PUBLISHER_EXCHANGE;
+import static az.vtb.iticket.model.constant.QueueConstant.PUBLISHER_ROUTING_KEY;
 import static az.vtb.iticket.model.enums.EventStatus.DELETED;
 import static az.vtb.iticket.model.enums.EventStatus.PUBLISHED;
 import static java.time.LocalDateTime.now;
@@ -28,6 +32,7 @@ import static java.time.LocalDateTime.now;
 @RequiredArgsConstructor
 public class EventServiceHandler implements EventService {
     private final EventRepository eventRepository;
+    private final MessagePublisher messagePublisher;
 
     @Override
     public void createEvent(CreateEventRequest eventRequest) {
@@ -35,6 +40,7 @@ public class EventServiceHandler implements EventService {
         var event = EVENT_MAPPER.toEventEntity(eventRequest);
         event.setStatus(PUBLISHED);
         eventRepository.save(event);
+        messagePublisher.publish(PUBLISHER_EXCHANGE, PUBLISHER_ROUTING_KEY, Subscriber.from(eventRequest));
     }
 
     @Override

@@ -1,4 +1,4 @@
-package az.vtb.iticket.config;
+package az.vtb.iticket.configuration;
 
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;

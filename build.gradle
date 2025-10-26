@@ -46,6 +46,9 @@ dependencies {
     //shedlock
     implementation "net.javacrumbs.shedlock:shedlock-spring:${shedlockVersion}"
     implementation "net.javacrumbs.shedlock:shedlock-provider-jdbc-template:${shedlockVersion}"
+
+    //rabbitmq
+    implementation "org.springframework.boot:spring-boot-starter-amqp"
 }
 
 tasks.named('test') {

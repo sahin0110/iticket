@@ -2,7 +2,6 @@ package az.vtb.iticket.model.request;
 
 import az.vtb.iticket.model.enums.Category;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -38,7 +37,6 @@ public class CreateEventRequest {
     Category category;
 
     @NotNull(message = "validation.not.null-startTime")
-//    @FutureOrPresent(message = "validation.startTime.futureOrPresent")
     @JsonFormat(pattern = DATE_TIME_PATTERN)
     LocalDateTime startTime;
 
