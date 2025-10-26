@@ -1,14 +1,11 @@
 package az.vtb.iticket.mapper;
 
-import az.vtb.iticket.dao.entity.EventEntity;
 import az.vtb.iticket.dao.entity.TicketEntity;
 import az.vtb.iticket.model.criteria.TicketCriteria;
 import az.vtb.iticket.model.request.CreateTicketRequest;
 import az.vtb.iticket.model.request.UpdateTicketRequest;
 import az.vtb.iticket.model.response.TicketResponse;
 import az.vtb.iticket.service.specification.TicketSpecification;
-
-import java.util.List;
 
 import static az.vtb.iticket.mapper.EventMapper.EVENT_MAPPER;
 
@@ -42,9 +39,4 @@ public enum TicketMapper {
     public TicketSpecification toTicketSpecification(TicketCriteria ticketCriteria) {
         return new TicketSpecification(ticketCriteria);
     }
-
-//    public void setEventInTicketEntity(TicketEntity ticketEntity, EventEntity eventEntity) {
-//        ticketEntity.setEvent(eventEntity);
-//        eventEntity.setTickets(List.of(ticketEntity));
-//    }
 }

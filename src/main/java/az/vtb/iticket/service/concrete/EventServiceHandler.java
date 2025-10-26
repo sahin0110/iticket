@@ -2,7 +2,6 @@ package az.vtb.iticket.service.concrete;
 
 import az.vtb.iticket.dao.entity.EventEntity;
 import az.vtb.iticket.dao.repository.EventRepository;
-import az.vtb.iticket.dao.repository.TicketRepository;
 import az.vtb.iticket.exception.NotFoundException;
 import az.vtb.iticket.exception.UnprocessableException;
 import az.vtb.iticket.model.criteria.EventCriteria;
@@ -13,36 +12,35 @@ import az.vtb.iticket.model.response.PageableResponse;
 import az.vtb.iticket.service.abstraction.EventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
-import static az.vtb.iticket.exception.ErrorMessage.*;
+import static az.vtb.iticket.exception.ErrorMessage.EVENT_NOT_FOUND;
+import static az.vtb.iticket.exception.ErrorMessage.INVALID_EVENT_TIME;
 import static az.vtb.iticket.mapper.EventMapper.EVENT_MAPPER;
 import static az.vtb.iticket.mapper.PageableMapper.PAGEABLE_MAPPER;
+import static az.vtb.iticket.model.enums.EventStatus.DELETED;
+import static az.vtb.iticket.model.enums.EventStatus.PUBLISHED;
+import static java.time.LocalDateTime.now;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventServiceHandler implements EventService {
-
     private final EventRepository eventRepository;
-    private final TicketRepository ticketRepository;
-
 
     @Override
-    public void saveEvent(CreateEventRequest eventRequest) {
+    public void createEvent(CreateEventRequest eventRequest) {
         validateEventTime(eventRequest);
-        var eventEntity = EVENT_MAPPER.toEventEntity(eventRequest);
-        eventRepository.save(eventEntity);
+        var event = EVENT_MAPPER.toEventEntity(eventRequest);
+        event.setStatus(PUBLISHED);
+        eventRepository.save(event);
     }
 
     @Override
     public EventResponse getEventById(Long eventId) {
-        var eventEntity = getActiveEventOrThrow(eventId);
-        return EVENT_MAPPER.toEventResponse(eventEntity);
+        var event = getActiveEventOrThrow(eventId);
+        return EVENT_MAPPER.toEventResponse(event);
     }
 
     @Override
@@ -57,69 +55,35 @@ public class EventServiceHandler implements EventService {
     @Transactional
     @Override
     public void deleteEvent(Long eventId) {
-
-        var eventEntity = getActiveEventOrThrow(eventId);
-
-        softDeleteTicketsByEventId(eventId);
-
-        eventEntity.setDeleted(true);
-        eventEntity.setDeletedAt(LocalDateTime.now());
-        eventRepository.save(eventEntity);
+        var event = getActiveEventOrThrow(eventId);
+        event.setStatus(DELETED);
+        event.setDeletedAt(now());
+        eventRepository.save(event);
     }
 
     @Override
     public EventEntity getActiveEventOrThrow(Long eventId) {
-
         return eventRepository.findById(eventId)
-                .filter(event -> !event.isDeleted())
+                .filter(event -> PUBLISHED.equals(event.getStatus()))
                 .orElseThrow(() -> new NotFoundException(EVENT_NOT_FOUND.getCode()));
     }
 
-    @Scheduled(cron = "0 * * * * *")
-    @Transactional
-    public void deleteExpiredEvents() {
-        var now = LocalDateTime.now();
-        var expiredEvents = eventRepository.findEventEntityByEndTimeIsBefore(now);
-
-        var eventIds = expiredEvents.stream()
-                .map(EventEntity::getId)
-                .toList();
-
-        ticketRepository.deleteByEventIds(eventIds);
-        eventRepository.deleteAll(expiredEvents);
-    }
-
-    @Scheduled(cron = "0 * * * * *")
-    @Transactional
-    public void deleteEventsExpiredDeleteTime() {
-        var expiryTime = LocalDateTime.now().minusMinutes(1);
-
-        var expiredEvents = eventRepository.findEventEntityByDeletedAtBefore(expiryTime);
-
-        var eventIds = expiredEvents.stream()
-                .map(EventEntity::getId)
-                .toList();
-
-        ticketRepository.deleteByEventIds(eventIds);
-        eventRepository.deleteAll(expiredEvents);
+    public void markCompletedEventsAsDeleted() {
+        var completedEvents = eventRepository.findAllByStatus(PUBLISHED);
+        completedEvents.forEach(event -> {
+            if (event.getEndTime().isBefore(now())) {
+                event.setStatus(DELETED);
+                event.setDeletedAt(now());
+            }
+        });
+        eventRepository.saveAll(completedEvents);
     }
 
     private void validateEventTime(CreateEventRequest eventRequest) {
         if (eventRequest.getStartTime().isAfter(eventRequest.getEndTime())
-                || eventRequest.getStartTime().isBefore(LocalDateTime.now())) {
+                || eventRequest.getStartTime().isBefore(now())
+                || eventRequest.getStartTime().equals(eventRequest.getEndTime())) {
             throw new UnprocessableException(INVALID_EVENT_TIME.getCode());
         }
-    }
-
-    private void softDeleteTicketsByEventId(Long eventId) {
-        var tickets = ticketRepository.findAllByEventId(eventId);
-        LocalDateTime deletedAt = LocalDateTime.now();
-
-        tickets.forEach(ticket -> {
-            ticket.setDeleted(true);
-            ticket.setDeletedAt(deletedAt);
-        });
-
-        ticketRepository.saveAll(tickets);
     }
 }

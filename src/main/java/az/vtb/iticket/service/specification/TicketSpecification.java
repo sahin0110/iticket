@@ -23,8 +23,6 @@ public class TicketSpecification implements Specification<TicketEntity> {
                                  CriteriaQuery<?> query,
                                  @NonNull CriteriaBuilder cb) {
         var predicates = PredicateUtil.builder()
-                .add(ticketCriteria.getIsDeleted(),
-                        it -> cb.isFalse(root.get(isDeleted)))
                 .addNullSafety(ticketCriteria.getRow(),
                         it -> cb.equal(root.get(row), it)
                 )

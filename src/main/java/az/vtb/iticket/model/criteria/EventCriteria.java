@@ -3,19 +3,22 @@ package az.vtb.iticket.model.criteria;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 import static az.vtb.iticket.model.constant.DateTimeConstants.DATE_TIME;
+import static lombok.AccessLevel.PRIVATE;
 
 @Data
 @Builder
 @AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class EventCriteria {
-    private String category;
+    String category;
+    String status;
 
     @DateTimeFormat(pattern = DATE_TIME)
-    private LocalDate fromDate;
-    private Boolean isDeleted;
+    LocalDate fromDate;
 }

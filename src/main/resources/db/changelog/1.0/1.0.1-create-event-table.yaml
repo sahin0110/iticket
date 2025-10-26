@@ -20,7 +20,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: description
-                  type: VARCHAR
+                  type: VARCHAR(1000)
                   constraints:
                     nullable: false
               - column:
@@ -34,9 +34,10 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: is_deleted
-                  type: BOOLEAN
-                  defaultValueBoolean: false
+                  name: status
+                  type: VARCHAR
+                  constraints:
+                    nullable: false
               - column:
                   name: deleted_at
                   type: TIMESTAMP

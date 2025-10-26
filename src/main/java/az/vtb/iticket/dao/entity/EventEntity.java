@@ -1,24 +1,33 @@
 package az.vtb.iticket.dao.entity;
 
 import az.vtb.iticket.model.enums.Category;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import az.vtb.iticket.model.enums.EventStatus;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
-import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.CascadeType.MERGE;
+import static jakarta.persistence.CascadeType.PERSIST;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PRIVATE;
 
 @Entity
 @Table(name = "events")
@@ -28,43 +37,50 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldNameConstants
+@FieldDefaults(level = PRIVATE)
 public class EventEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    Long id;
 
-    private String name;
-    private String description;
-    private String location;
+    String name;
+    String description;
+    String location;
 
     @Enumerated(STRING)
-    private Category category;
+    Category category;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    LocalDateTime startTime;
+    LocalDateTime endTime;
 
     @OneToMany(mappedBy = "event", cascade = {PERSIST, MERGE})
-    private List<TicketEntity> tickets;
+    List<TicketEntity> tickets;
 
-    private boolean isDeleted;
-    private LocalDateTime deletedAt;
+    @Enumerated(STRING)
+    EventStatus status;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    LocalDateTime updatedAt;
+
+    LocalDateTime deletedAt;
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        var eventEntity = (EventEntity) o;
-        return Objects.equals(id, eventEntity.id);
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        EventEntity event = (EventEntity) o;
+        return getId() != null && Objects.equals(getId(), event.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

@@ -3,17 +3,20 @@ package az.vtb.iticket.model.criteria;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @Data
 @Builder
 @AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class TicketCriteria {
-    private BigDecimal minPrice;
-    private BigDecimal maxPrice;
-    private Integer row;
-    private Integer place;
-    private Long eventId;
-    private Boolean isDeleted;
+    BigDecimal minPrice;
+    BigDecimal maxPrice;
+    Integer row;
+    Integer place;
+    Long eventId;
 }

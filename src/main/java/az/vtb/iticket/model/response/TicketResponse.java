@@ -4,18 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
+
+import static lombok.AccessLevel.PRIVATE;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = PRIVATE)
 public class TicketResponse {
-
-    private Long id;
-    private BigDecimal price;
-    private Integer row;
-    private Integer place;
-    private EventResponse event;
+    Long id;
+    BigDecimal price;
+    Integer row;
+    Integer place;
+    EventResponse event;
 }

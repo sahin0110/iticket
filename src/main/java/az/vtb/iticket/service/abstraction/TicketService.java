@@ -14,7 +14,7 @@ public interface TicketService {
 
     PageableResponse<TicketResponse> getAllTickets(PageCriteria pageCriteria, TicketCriteria ticketCriteria);
 
-    TicketResponse getTicket(Long ticketId);
+    TicketResponse getTicketById(Long ticketId);
 
     TicketEntity getActiveTicketOrThrow(Long ticketId);
 

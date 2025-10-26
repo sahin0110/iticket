@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: create shedlock table
+      author: Shahin Agasiyev
+      changes:
+        - createTable:
+            tableName: shedlock
+            columns:
+              - column:
+                  name: name
+                  type: VARCHAR(64)
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: shedlock_pk
+                    nullable: false
+              - column:
+                  name: lock_until
+                  type: TIMESTAMP
+                  constraints:
+                    notNull: true
+              - column:
+                  name: locked_at
+                  type: TIMESTAMP
+              - column:
+                  name: locked_by
+                  type: VARCHAR(255)
+        - createIndex:
+            indexName: idx_shedlock_name
+            tableName: shedlock
+            columns:
+              - column:
+                  name: name

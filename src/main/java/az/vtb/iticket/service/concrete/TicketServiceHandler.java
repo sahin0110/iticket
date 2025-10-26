@@ -2,8 +2,8 @@ package az.vtb.iticket.service.concrete;
 
 import az.vtb.iticket.dao.entity.TicketEntity;
 import az.vtb.iticket.dao.repository.TicketRepository;
-import az.vtb.iticket.exception.UnprocessableException;
 import az.vtb.iticket.exception.NotFoundException;
+import az.vtb.iticket.exception.UnprocessableException;
 import az.vtb.iticket.model.criteria.PageCriteria;
 import az.vtb.iticket.model.criteria.TicketCriteria;
 import az.vtb.iticket.model.request.CreateTicketRequest;
@@ -20,8 +20,8 @@ import java.time.LocalDateTime;
 import java.util.ConcurrentModificationException;
 
 import static az.vtb.iticket.exception.ErrorMessage.CANNOT_CREATE_TICKET;
-import static az.vtb.iticket.exception.ErrorMessage.TICKET_NOT_FOUND;
 import static az.vtb.iticket.exception.ErrorMessage.DUPLICATE_TICKET_PLACE;
+import static az.vtb.iticket.exception.ErrorMessage.TICKET_NOT_FOUND;
 import static az.vtb.iticket.mapper.PageableMapper.PAGEABLE_MAPPER;
 import static az.vtb.iticket.mapper.TicketMapper.TICKET_MAPPER;
 
@@ -38,7 +38,6 @@ public class TicketServiceHandler implements TicketService {
     @Override
     public void saveTicket(CreateTicketRequest ticketRequest) {
         var event = eventService.getActiveEventOrThrow(ticketRequest.getEventId());
-
         checkEventNotStarted(event.getStartTime());
         checkDuplicatePlace(ticketRequest.getEventId(), ticketRequest.getRow(), ticketRequest.getPlace());
 
@@ -48,17 +47,17 @@ public class TicketServiceHandler implements TicketService {
     }
 
     @Override
+    public TicketResponse getTicketById(Long ticketId) {
+        var ticket = getActiveTicketOrThrow(ticketId);
+        return TICKET_MAPPER.toTicketResponse(ticket);
+    }
+
+    @Override
     public PageableResponse<TicketResponse> getAllTickets(PageCriteria pageCriteria, TicketCriteria ticketCriteria) {
         var tickets = ticketRepository.findAll(
                 TICKET_MAPPER.toTicketSpecification(ticketCriteria),
                 PAGEABLE_MAPPER.toPageRequest(pageCriteria));
         return PAGEABLE_MAPPER.buildPageableResponse(tickets, TICKET_MAPPER::toTicketResponse);
-    }
-
-    @Override
-    public TicketResponse getTicket(Long ticketId) {
-        var ticket = getActiveTicketOrThrow(ticketId);
-        return TICKET_MAPPER.toTicketResponse(ticket);
     }
 
     @Override
@@ -75,16 +74,12 @@ public class TicketServiceHandler implements TicketService {
 
     @Override
     public void deleteTicket(Long ticketId) {
-        var ticket = getActiveTicketOrThrow(ticketId);
-        ticket.setDeleted(true);
-        ticket.setDeletedAt(LocalDateTime.now());
-        ticketRepository.save(ticket);
+        ticketRepository.deleteById(ticketId);
     }
 
     @Override
     public TicketEntity getActiveTicketOrThrow(Long ticketId) {
         return ticketRepository.findById(ticketId)
-                .filter(ticket -> !ticket.isDeleted())
                 .orElseThrow(() -> new NotFoundException(TICKET_NOT_FOUND.getCode()));
     }
 

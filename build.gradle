@@ -34,13 +34,18 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok"
 
     //swagger
-    implementation "org.springdoc:springdoc-openapi-ui:$openApiVersion"
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${actuatorVersion}"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${webmvcVersion}"
 
     //testing
-//    testImplementation "org.apache.groovy:groovy:${groovyVersion}"
-//    testImplementation "org.spockframework:spock-spring:${spockVersion}"
-//    testImplementation "io.github.benas:random-beans:${enhanceRandom}"
-//    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.apache.groovy:groovy:${groovyVersion}"
+    testImplementation "org.spockframework:spock-spring:${spockVersion}"
+    testImplementation "io.github.benas:random-beans:${enhanceRandom}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+
+    //shedlock
+    implementation "net.javacrumbs.shedlock:shedlock-spring:${shedlockVersion}"
+    implementation "net.javacrumbs.shedlock:shedlock-provider-jdbc-template:${shedlockVersion}"
 }
 
 tasks.named('test') {

@@ -10,7 +10,7 @@ import jakarta.validation.Valid;
 
 public interface EventService {
 
-    void saveEvent(@Valid CreateEventRequest eventRequest);
+    void createEvent(@Valid CreateEventRequest eventRequest);
 
     PageableResponse<EventResponse> getAllEvents(PageCriteria pageCriteria, EventCriteria eventCriteria);
 

@@ -28,6 +28,7 @@ public enum EventMapper {
                 .description(eventEntity.getDescription())
                 .location(eventEntity.getLocation())
                 .category(eventEntity.getCategory())
+                .status(eventEntity.getStatus())
                 .startTime(eventEntity.getStartTime())
                 .endTime(eventEntity.getEndTime())
                 .build();
