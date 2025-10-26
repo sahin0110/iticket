@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: create Ticket entity
+      author: shahin
+      changes:
+        - createTable:
+            tableName: tickets
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: price
+                  type: NUMERIC(16, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: row
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: place
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deleted_at
+                  type: TIMESTAMP
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+              - column:
+                  name: event_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_tickets_event
+                    references: events(id)
