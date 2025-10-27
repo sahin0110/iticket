@@ -39,8 +39,19 @@ public class EventServiceHandler implements EventService {
         validateEventTime(eventRequest);
         var event = EVENT_MAPPER.toEventEntity(eventRequest);
         event.setStatus(PUBLISHED);
-        eventRepository.save(event);
-        messagePublisher.publish(PUBLISHER_EXCHANGE, PUBLISHER_ROUTING_KEY, Subscriber.from(eventRequest));
+        var savedEvent = eventRepository.save(event);
+
+        log.info("Event created with id: {}", savedEvent.getId());
+        try {
+            messagePublisher.publish(
+                    PUBLISHER_EXCHANGE,
+                    PUBLISHER_ROUTING_KEY,
+                    Subscriber.from(eventRequest)
+            );
+            log.info("Event notification sent to queue");
+        } catch (Exception ex) {
+            log.error("Failed to send event notification, but event was saved", ex);
+        }
     }
 
     @Override

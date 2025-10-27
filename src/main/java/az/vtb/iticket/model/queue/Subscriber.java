@@ -1,6 +1,7 @@
 package az.vtb.iticket.model.queue;
 
 import az.vtb.iticket.model.request.CreateEventRequest;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,16 +21,16 @@ public class Subscriber {
     String name;
     String description;
     String location;
-    LocalDateTime starTime;
-    LocalDateTime endTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    LocalDateTime startTime;
 
     public static Subscriber from(CreateEventRequest eventRequest) {
         return Subscriber.builder()
                 .name(eventRequest.getName())
                 .description(eventRequest.getDescription())
                 .location(eventRequest.getLocation())
-                .starTime(eventRequest.getStartTime())
-                .endTime(eventRequest.getEndTime())
+                .startTime(eventRequest.getStartTime())
                 .build();
     }
 }
