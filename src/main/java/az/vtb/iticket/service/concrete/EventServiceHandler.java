@@ -1,8 +1,10 @@
 package az.vtb.iticket.service.concrete;
 
+import az.vtb.iticket.configuration.TelegramBot;
 import az.vtb.iticket.dao.entity.EventEntity;
 import az.vtb.iticket.dao.repository.EventRepository;
 import az.vtb.iticket.exception.NotFoundException;
+import az.vtb.iticket.exception.TelegramException;
 import az.vtb.iticket.exception.UnprocessableException;
 import az.vtb.iticket.model.criteria.EventCriteria;
 import az.vtb.iticket.model.criteria.PageCriteria;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static az.vtb.iticket.exception.ErrorMessage.EVENT_NOT_FOUND;
 import static az.vtb.iticket.exception.ErrorMessage.INVALID_EVENT_TIME;
+import static az.vtb.iticket.exception.ErrorMessage.TELEGRAM_SEND_EVENT_FAILED;
 import static az.vtb.iticket.mapper.EventMapper.EVENT_MAPPER;
 import static az.vtb.iticket.mapper.PageableMapper.PAGEABLE_MAPPER;
 import static az.vtb.iticket.model.constant.QueueConstant.PUBLISHER_EXCHANGE;
@@ -33,6 +36,7 @@ import static java.time.LocalDateTime.now;
 public class EventServiceHandler implements EventService {
     private final EventRepository eventRepository;
     private final MessagePublisher messagePublisher;
+    private final TelegramBot telegramBot;
 
     @Override
     public void createEvent(CreateEventRequest eventRequest) {
@@ -48,9 +52,14 @@ public class EventServiceHandler implements EventService {
                     PUBLISHER_ROUTING_KEY,
                     Subscriber.from(eventRequest)
             );
-            log.info("Event notification sent to queue");
         } catch (Exception ex) {
-            log.error("Failed to send event notification, but event was saved", ex);
+            throw new TelegramException(TELEGRAM_SEND_EVENT_FAILED.getCode());
+        }
+
+        try {
+            telegramBot.sendEventNotification(eventRequest);
+        } catch (Exception ex) {
+            throw new TelegramException(TELEGRAM_SEND_EVENT_FAILED.getCode());
         }
     }
 
@@ -86,14 +95,17 @@ public class EventServiceHandler implements EventService {
     }
 
     public void markCompletedEventsAsDeleted() {
-        var completedEvents = eventRepository.findAllByStatus(PUBLISHED);
-        completedEvents.forEach(event -> {
-            if (event.getEndTime().isBefore(now())) {
-                event.setStatus(DELETED);
-                event.setDeletedAt(now());
-            }
-        });
-        eventRepository.saveAll(completedEvents);
+        var eventsToUpdate = eventRepository.findAllByStatus(PUBLISHED).stream()
+                .filter(event -> event.getEndTime().isBefore(now()))
+                .peek(event -> {
+                    event.setStatus(DELETED);
+                    event.setDeletedAt(now());
+                })
+                .toList();
+
+        if (!eventsToUpdate.isEmpty()) {
+            eventRepository.saveAll(eventsToUpdate);
+        }
     }
 
     private void validateEventTime(CreateEventRequest eventRequest) {

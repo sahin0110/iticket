@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import static az.vtb.iticket.exception.ErrorMessage.UNEXPECTED_ERROR;
 import static az.vtb.iticket.util.LocalizationUtil.LOCALIZATION_UTIL;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.CONFLICT;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
@@ -42,6 +43,14 @@ public class ErrorHandler {
     @ResponseStatus(UNPROCESSABLE_ENTITY)
     public ErrorResponse handle(UnprocessableException ex) {
         log.error("UnprocessableException: ", ex);
+        var message = LOCALIZATION_UTIL.getMessageByKey(ex.getMessage());
+        return new ErrorResponse(message);
+    }
+
+    @ExceptionHandler(TelegramException.class)
+    @ResponseStatus(FORBIDDEN)
+    public ErrorResponse handle(TelegramException ex) {
+        log.error("TelegramException: ", ex);
         var message = LOCALIZATION_UTIL.getMessageByKey(ex.getMessage());
         return new ErrorResponse(message);
     }
